@@ -1,13 +1,103 @@
 const express = require('express');
 const abc = require('../introduction/intro')
 const router = express.Router();
+
+
+let players =
+   [
+     {
+           "name": "manish",
+           "dob": "1/1/1995",
+           "gender": "male",
+           "city": "jalandhar",
+           "sports": [
+               "swimming"
+           ]
+    },
+       {
+           "name": "gopal",
+           "dob": "1/09/1995",
+           "gender": "male",
+           "city": "delhi",
+           "sports": [
+               "soccer"
+           ],
+       },
+       {
+           "name": "lokesh",
+           "dob": "1/1/1990",
+           "gender": "male",
+           "city": "mumbai",
+           "sports": [
+               "soccer"
+           ],
+       },
+   ]
+
+   router.post('/players', function (req, res) {
+       let newDetails = req.body
+       let newPlayersName = newDetails.name
+       let nameRepeated = false
+
+       for (let i = 0; i<players.length; i++){
+        if(players[i].name==newPlayersName){
+           nameRepeated = true;
+             break;
+        }
+       }
+         if(nameRepeated){
+           res.send("This player was already exists")
+         }else{
+          players.push(newDetails)
+          res.send(players)
+         }
+       
+       
+       res.send(  { data: players , status: true }  )
+   })
+//======================================================================================//
+/*router.get("/sol1", function (req, res) {
+  //logic : sum of numbers is n(n+1)/2..so get sum of all numbers in array.
+  // now take sum of numbers till last digit in the array
+  let arr = [7,8,9,10,12,13]
+  let total = 0;
+  for(var i in arr){
+    total += arr[i];
+  }
+ let lastDigit = arr.pop()
+ let consecutiveNum = lastDigit * (lastDigit+1)/2 
+  let missingNumber = consecutiveNum - total
+ 
+  res.send(  { data: missingNumber  }  );
+});
+
+//=======================2=======================================//
+router.get("/sol2", function (req, res) {
+  //logic : sum of n consecutive numbers is [ n * (first + last) / 2  ]..so get sum of all numbers in array.
+  // now take sum of n consecutive numbers.. n would be length+1 as 1 number is missing
+  let arr= [45, 46, 48, 49, 50]
+  let len = arr.length
+  let total = 0;
+  for(var i in arr) {
+    total += arr[i];
+  }
+
+  let firstDigit = arr[0]
+  let lastDigit= arr.pop()
+  let consecutiveNum= (len +1) * (firstDigit+ lastDigit)/2
+  let missingNumber = consecutiveNum - total
+
+  res.send(  { data: missingNumber  }  );
+});
+*/
+/*
 //======================1========================================//
-router.get('/get-movies',function(req, res){  
+router.get('/get-movies/:movies1',function(req, res){  
   let movies1= ["Koi mil gaya ","Shera","Robot","De dana dan"]
   res.send(movies1)
 })
 //======================2======================================//
-router.get('/get-movie/:indexNumber',function(req, res){ 
+/*router.get('/get-movie/:indexNumber',function(req, res){ 
     
   let movies=['Pk','dear jindgi','gully boy','Jindgi na milegi dobara']
   let index = req.params.indexNumber;
@@ -53,8 +143,9 @@ router.get('/get-/films/:indexNumber',function(req, res){
    res.send(moviesName[index])
    }
 })
-
-/*router.get('/test-me', function (req, res) {
+*/
+/*
+router.get('/test-me', function (req, res) {
     console.log('My batch is', abc.name)
     abc.printName()
     logger.welcome()
@@ -66,7 +157,7 @@ router.get('/students', function (req, res){
     let students = ['Sabiha', 'Neha', 'Akash']
     res.send(students)
 })
-
+/*
 router.get('/student-details/:name', function(req, res){
     /*
     params is an attribute inside request that contains 
@@ -94,6 +185,5 @@ router.get('/student-details/:name', function(req, res){
     
     res.send('Dummy response')
 })
-
-module.exports = router;
 */
+module.exports = router;
