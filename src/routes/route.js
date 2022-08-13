@@ -2,7 +2,47 @@ const express = require('express');
 const abc = require('../introduction/intro')
 const router = express.Router();
 
+let persons=[
+  {
+    name: "PK",
+    age:  "10",
+    votingStatus: false,
+  },
+ {
+    name: "SK",
+    age: "20", 
+    votingStatus: false
+},
+ {
+    name: "AA",
+    age:   "70",
+    votingStatus: false
+ },
+  {
+    name: "SC",
+    age:   "5",
+    votingStatus: false
+ },
+  {
+    name: "HO",
+    age:   "40",
+    votingStatus: false
+ }
+]
 
+ router.post('/persons',function(req,res){
+ let votingAge = req.query.age
+  let eligiblePerson = []
+  for(let i=0; i<persons.length; i++){
+    if(persons[i].age > votingAge){
+      persons[i].votingStatus = true;
+      eligiblePerson.push(persons[i])
+    }
+}
+     res.send(  {persons: eligiblePerson, status: true }  ) 
+})
+//======================================================================================//
+/*
 let players =
    [
      {
@@ -55,6 +95,7 @@ let players =
        
        res.send(  { data: players , status: true }  )
    })
+   */
 //======================================================================================//
 /*router.get("/sol1", function (req, res) {
   //logic : sum of numbers is n(n+1)/2..so get sum of all numbers in array.
