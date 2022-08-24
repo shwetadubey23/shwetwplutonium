@@ -4,45 +4,37 @@ const NewbookModel= require("../models/NewbookModel")
 const NewpublisherModel = require("../models/NewpublisherModel")
 
 const createBook= async function (req, res) {
-    let authorId = req.body.authorId
-    let publisherId = req.body.PublisherId
-    let isValid  = mongoose.Types.ObjectId.isValid(authorId)
-    let isValid2 = mongoose.Types.ObjectId.isValid(publisherId)
-
-    if(isValid === false){
-        return res.send("AuthorId is invalid")
-    }
-      else if(isValid2 === false){
-        return res.send("PublisherId is invalid")
-      }
-    let checkAuthorId = await NewauthorModel.findById(authorId)
-    let checkPublisherId = await NewpublisherModel.findById(publisherId)
-    if(!checkAuthorId){
-      return  res.send("AuthorId is not present")
-    }else if(!checkPublisherId){
-      return res.send("PublisherId is not present")
-    }
-    // if(!checkAuthorId && !checkPublisherId){
-      //  return res.send("Enter the AuthorId and PublisherId")
-    //}
-    let book = req.body
-    let bookCreated = await NewbookModel.create(book)
-    res.send({data: bookCreated})
+   let book = req.body
+   let bookCreated = await NewbookModel.create(book)
+   res.send({data: bookCreated})
 }
 
-
-/*
-const getBooksData= async function (req, res) {
-    let books = await bookModel.find()
-    res.send({data: books})
-}
-*/
 const getBooksWithAuthorDetails = async function (req, res) {
     let specificBook = await NewbookModel.find().populate('authorId').populate("PublisherId")
     res.send({data: specificBook})
 
 }
 
+const getUpdatePublisher = async function(req,res){
+  let PublisherUpdate = req.body.NewPublisher
+   let PublisherData = await NewpublisherModel.find({name: ["Penguin","HarperCpllins"]}).select({_id:1})
+   let BookDataUpdate = await NewbookModel.updateMany({NewPublisher:PublisherData},
+    {$set:{isHardCover:true,new:true}},{upsert:true})
+  res.send({data:BookDataUpdate})
+   }
+
+ const  UpdateAuthorRating= async function(req, res){
+   let AuthorUpdate = req.body.NewAuthor
+   let authorData = await NewauthorModel.findById({AuthorUpdate:{$set:{rating:{$gt: 3.5}}}}).select({_id:1})
+   
+   .updateMany({price: AuthorUpdate},{$inc:{price:10}},{new:true})
+   res.send({data:authorData})
+  }
+
+  
+
 module.exports.createBook= createBook
-//module.exports.getBooksData= getBooksData
-module.exports.getBook = getBooksWithAuthorDetails
+module.exports.getBooksData= getUpdatePublisher
+module.exports.getUpdateAuthor = UpdateAuthorRating
+module.exports.UpdatePublisher = getUpdatePublisher
+

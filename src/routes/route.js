@@ -10,6 +10,8 @@ router.post("/createAuthor", authorController.createAuthor)
 
 router.post("/creatPublisher", PublisherController.creatPublisher)
 
+router.put("/UpdateAuthorRating", bookController.getUpdateAuthor)
+router.put('/getUpdatePublisher',bookController.UpdatePublisher)
 
 router.get('/getBooksAuthorAndPublisher', bookController.getBook)
 
