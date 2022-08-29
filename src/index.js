@@ -8,23 +8,23 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-mongoose.connect("mongodb+srv://Shwetadubey:QvtqJ8hdhmn0fhlT@cluster0.ymyddly.mongodb.net/MyDB3?retryWrites=true&w=majority", {
+mongoose.connect("mongodb+srv://Shwetadubey:QvtqJ8hdhmn0fhlT@cluster0.ymyddly.mongodb.net/MyDB4?retryWrites=true&w=majority", {
     useNewUrlParser: true
 })
 .then( () => console.log("MongoDb is connected"))
 .catch ( err => console.log(err) )
-const moment = require('moment')
-const time = moment();
-app.use(
-    function(req, res, next){
-    console.log("It's Global Middlewares");
-        console.log(time.format ('DD,MM,YYYY'));
-        console.log(time.format('h:mm:ss'))
-    console.log(req.ip)
-    console.log(req.originalUrl)
-     next();
-    }
-);
+// const moment = require('moment')
+// const time = moment();
+// app.use(
+//     function(req, res, next){
+//     console.log("It's Global Middlewares");
+//         console.log(time.format ('DD,MM,YYYY'));
+//         console.log(time.format('h:mm:ss'))
+//     console.log(req.ip)
+//     console.log(req.originalUrl)
+//      next();
+//     }
+// );
 app.use('/', route);
 
 
