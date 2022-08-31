@@ -1,34 +1,24 @@
 const express = require('express');
 const router = express.Router();
+const userController= require("../controllers/userController")
+const auth = require("../middlewares/auth")
 
- const UserController= require("../controllers/UserController")
- const ProductController= require("../controllers/ProductController")
- const OrderController = require("../controllers/OrderController")
- const commonMW = require("../controllers/middlewares/commonMiddlewares")
+router.get("/test-me", function (req, res) {
+    res.send("My first ever api!")
+})
 
-router.post("/createUaer", commonMW.Middle1, UserController.createUser)
-router.post("/createProduct", ProductController.createProduct)
-router.post("/createOrder", commonMW.Middle1, OrderController.createOrder)
+router.post("/users", userController.createUser  )
 
+router.post("/login", userController.loginUser)
 
+//The userId is sent by front end
+router.get("/users/:userId", auth.authenticate, userController.getUserData)
+
+router.put("/users/:userId", auth.authenticate, userController.updateUser)
+
+router.delete("/users/:userId", auth.authenticate, userController.deleteUser)
 
 module.exports = router;
-
-// const mid1 = function(req, res, next){
-//     console.log("hi I am a middleware named Mid1")
-//     //logic
-//     let loggedIn = false
-//     if (loggedIn== true){
-//         console.log("ok you Logged is True Now")
-//         next()
-//     }
-//     else{
-//         res.send("Please login or register")
-//     }
-// }
-
-// router.get("/basicRoute", commonMW.mid1, commonMW.mid2,commonMW.mid3,UserController.basicCode)
-
 
 
 
