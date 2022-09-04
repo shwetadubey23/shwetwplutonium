@@ -1,26 +1,30 @@
 const express = require('express');
 const router = express.Router();
-// const userController= require("../controllers/userController")
-// const auth = require("../middlewares/auth")
-const openWeather = require("../controllers/OpenWeather")
+//const memesController = require("../controllers/memesController")
+const userController = require("../controllers/userController")
+const auth        =  require("../middlewares/auth")  
+router.get("/test", function(req,res){
+    res.send("Hello world")
+})
+
 
 router.get("/test-me", function (req, res) {
     res.send("My first ever api!")
 })
 
-// router.post("/users", userController.createUser  )
+router.post("/users", userController.createUser  )
 
-// router.post("/login", userController.loginUser)
+router.post("/login", userController.loginUser)
 
-// //The userId is sent by front end
-// router.get("/users/:userId", auth.authenticate, userController.getUserData)
+//The userId is sent by front end
+router.get("/users/:userId", auth.authenticate, auth.authorized, userController.getUserData)
 
-// router.put("/users/:userId", auth.authenticate, userController.updateUser)
+router.put("/users/:userId", auth.authenticate, auth.authorized, userController.updateUser)
 
-// router.delete("/users/:userId", auth.authenticate, userController.deleteUser)
+router.delete("/users/:userId", auth.authenticate, auth.authorized, userController.deleteUser)
 
-router.get("/OpenWeather", openWeather.getWeather)
-router.get("/citiesTemp", openWeather.getCitiesTemp)
+
+//router.post("/memes", memesController.postMemes)
 
 module.exports = router;
 

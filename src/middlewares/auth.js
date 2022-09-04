@@ -18,15 +18,19 @@ const authenticate = function(req, res, next) {
     if (!decodedToken) {
       return res.send({ status: false, msg: "token is invalid" });
     }
+     req.loggedInUser = decodedToken.userId
     next()
 }
 
 
-const authorise = function(req, res, next){
+const authorized = function(req, res, next){
    //logic here
    // comapre the logged in user's id and the id in request
+   let requestedUserId = req.params.userId
+   if(requestedUserId !== req.loggedInUesr)
+   return res.send({status: false, msg: "access denied"})
    next()
 }
 
 module.exports.authenticate = authenticate
-module.exports.authorise = authorise
+module.exports.authorized = authorized
