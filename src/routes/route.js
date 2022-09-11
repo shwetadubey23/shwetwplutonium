@@ -17,12 +17,12 @@ router.post("/authors", AuthorController.createAuthor);
 
 // blogs apis
 router.post("/blogs", Middlewares.authenticateAuthor, BlogController.createBlog);
-router.get("/getBlogs", Middlewares.authenticateAuthor, BlogController.getBlogs);
-router.put('/blogs/:authorId/:blogId', Middlewares.authenticateAuthor, Middlewares.authoriseAuthor, BlogController.updateBlog);
+router.get("/blogs", Middlewares.authenticateAuthor, BlogController.getBlogs);
+router.put('/blogs/:blogId', Middlewares.authenticateAuthor, Middlewares.authoriseAuthor, BlogController.updateBlog);
 
 // delete apis
-router.delete('/blogs/:authorId/:blogId', Middlewares.authenticateAuthor, Middlewares.authoriseAuthor, BlogController.deleteBlogById);
-router.delete('/blogs/:authorId', Middlewares.authenticateAuthor, Middlewares.authoriseAuthor, BlogController.deleteBlogByQueryParam);
+router.delete('/blogs/:blogId', Middlewares.authenticateAuthor, Middlewares.authoriseAuthor, BlogController.deleteBlogById);
+router.delete('/blogs', Middlewares.authenticateAuthor, Middlewares.authoriseAuthor, BlogController.deleteBlogByQueryParam);
 
 
 

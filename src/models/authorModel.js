@@ -4,21 +4,20 @@ const mongoose = require('mongoose');
 const AuthorSchema = new mongoose.Schema({
   fname: {
     type: String,
-    required: 'First Name is required',
+    required: true,
     trim: true
   },
 
   lname: {
     type: String,
-    required: 'Second Name is required',
+    required: 'Last Name is required',
     trim: true
   },
 
   title: {
     type: String,
     required: 'Title is required',
-    enum: ["Mr", "Mrs", "Miss"],
-    trim: true
+    enum:["Mr", "Mrs", "Miss"]
   },
 
   email: {
@@ -35,6 +34,6 @@ const AuthorSchema = new mongoose.Schema({
     trim: true
   }
 
-}, { timeStamps: true });
+}, { timestamps: true });
 
 module.exports = mongoose.model('Author', AuthorSchema);

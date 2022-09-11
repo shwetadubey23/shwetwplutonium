@@ -1,10 +1,11 @@
 const JWT = require('jsonwebtoken')
-const AuthorModel = require('../models/authorModel')
+// const AuthorModel = require('../models/authorModel')
 const BlogModel = require('../models/blogModel')
 
 
 // ### Authentication
-// - Add an authorisation implementation for the JWT token that validates the token before every protected endpoint is called. If the validation fails, return a suitable error message with a corresponding HTTP status code
+// - Add an authorisation implementation for the JWT token that validates the token before every protected endpoint is called. 
+//If the validation fails, return a suitable error message with a corresponding HTTP status code
 // - Protected routes are create a blog, edit a blog, get the list of blogs, delete a blog(s)
 // - Set the token, once validated, in the request - `x-api-key`
 // - Use a middleware for authentication purpose.
@@ -44,8 +45,10 @@ const authoriseAuthor = async (req, res, next) => {
 
         // extracting the userId from the validateToken's sent data( req.validateToken.AuthorId )
         let loggedInAuthor = req.validateToken.userId
-        // taking the author from path params (who is requesting route)
-        let requestingAuthor = req.params.authorId
+        // taking the author from path query (who is requesting route)
+        let requestingAuthor = req.query.authorId
+        if(!requestingAuthor) return res.status(404).send({ status: false, msg: 'Please send AuthorId inside query' })
+
 
         // checking with two id's that author who is requesting route and whose data in token are the same
         if (loggedInAuthor != requestingAuthor) return res.status(404).send({ status: false, msg: 'user is not authorised' })
@@ -55,7 +58,7 @@ const authoriseAuthor = async (req, res, next) => {
 
         // finding the blog with blogId inside BlogModel
         let validateBlogId = await BlogModel.findById(blogId)
-        // if (!validateBlogId) return res.status(404).send({ status: false, msg: "invalid blogId" });
+      //if (!validateBlogId) return res.status(404).send({ status: false, msg: "invalid blogId" });
 
         // sending values
         // userId found from token

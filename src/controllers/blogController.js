@@ -6,18 +6,20 @@ const createBlog = async (req, res) => {
     try {
         // taking data from body
         const newBlog = req.body;
+        let { title, body, authorId, category, isPublished, tags, subcategory, ...rest } = req.body
 
         //checking that there is data inside body
         if (Object.keys(newBlog) == 0) return res.status(400).send({ status: false, msg: "please provide details" })
-
+        if(Object.keys(rest) != 0) return res.status(400).send({ status: false, msg: "please provide required details only => title, body, authorId, category and isPublished"})
+        
         // checking all the required fields are present or not(sending error msg according to that)
-        if (!newBlog.title) return res.status(400).send({ status: false, msg: "Title is required" });
-        if (!newBlog.body) return res.status(400).send({ status: false, msg: "Body is required" });
-        if (!newBlog.authorId) return res.status(400).send({ status: false, msg: "AuthorId is required" });
-        if (!newBlog.category) return res.status(400).send({ status: false, msg: "Category is required" });
+        if (!title) return res.status(400).send({ status: false, msg: "Title is required" });
+        if (!body) return res.status(400).send({ status: false, msg: "Body is required" });
+        if (!authorId) return res.status(400).send({ status: false, msg: "AuthorId is required" });
+        if (!category) return res.status(400).send({ status: false, msg: "Category is required" });
 
         //finding by authorId
-        let authorId = newBlog['authorId']
+        //let authorId = newBlog['authorId']
         const validateAuthorId = await AuthorModel.findById(authorId);
         //check valid authorId
         if (!validateAuthorId) return res.status(404).send({ status: false, msg: "AuthorId is invalid" });
@@ -25,14 +27,14 @@ const createBlog = async (req, res) => {
         // creating new blog
         const data = await BlogModel.create(newBlog);
 
-        if (newBlog.isPublished === true) {
+        if (isPublished === true) {
             data.publishedAt = new Date();
             data.save();
         }
 
         res.status(201).send({ status: true, data: data });
     } catch (err) {
-        res.status(500).send({ status: "error", error: err.message });
+        res.status(500).send({ msg: err.message });
     }
 }
 
@@ -46,7 +48,7 @@ const getBlogs = async (req, res) => {
         let allBlogs = await BlogModel.find({
             $and: [queries, { isDeleted: false, isPublished: true }]
         });
-        if (allBlogs.length == 0) return res.status(404).send({ status: false, msg: "No blog found" });
+        if (allBlogs.length == 0) return res.status(404).send({ status: false, msg: "No blog found" });;
 
         // sending response
         res.status(200).send({ status: true, data: allBlogs });
@@ -86,16 +88,14 @@ const updateBlog = async (req, res) => {
         // updating that blog with findOneAndUpdate
         const updatedBlog = await BlogModel.findOneAndUpdate(
             { _id: blogId },
-            // { $set: data, publishedAt: new Date() }
             {
                 $push: { tags: details.tags, subcategory: details.subcategory },
-                title: details.title, body: details.body, authorId: details.authorId, isPublished: true, publishedAt: Date.now()
-            },
-            { new: true }
+                $set: { title: details.title, body: details.body, category: details.category, isPublished: true, publishedAt: Date.now() },
+            }, { new: true }
         );
         res.status(200).send({ status: true, data: updatedBlog });
     } catch (err) {
-        res.status(500).send({ status: "error", error: err.message });
+        res.status(500).send({ msg: err.message });
     }
 }
 
@@ -104,12 +104,19 @@ const updateBlog = async (req, res) => {
 const deleteBlogById = async (req, res) => {
     try {
         // taking blogId from middlewares/authorise
-        let blogId = req.blogId;
+        let blogId = req.blogId;  //req.params.blogId
         // getting blog from middleware(authorisation) 
-        let isBlogIdPresentDb = req.foundBlog
+        let isBlogIdPresentDb = req.foundBlog  // all the details of req.params.blogId
+
+        let requestingAuthorId = req.requestingAuthor
+
+        let authorIdFromReqBlog = isBlogIdPresentDb['authorId']
 
         // validating blogId
         if (!isBlogIdPresentDb) return res.status(404).send({ status: false, msg: "Blog is not exist" });
+
+        if ( requestingAuthorId != authorIdFromReqBlog) return res.status(404).send({ status: false, msg: "author has no permission to delete other's blog" });
+
 
         if (isBlogIdPresentDb.isDeleted === true) return res.status(404).send({ status: false, msg: "you are requesting to delete already deleted blog" });
 
@@ -121,7 +128,7 @@ const deleteBlogById = async (req, res) => {
         );
         res.status(200).send({ status: true, msg: "document deleted successfully" });
     } catch (err) {
-        res.status(500).send({ status: "error", error: err.message });
+        res.status(500).send({ msg: err.message });
     }
 }
 
