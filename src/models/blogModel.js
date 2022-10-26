@@ -4,20 +4,20 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const blogSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: 'Blog title is required',
+        required: true,
         trim: true
     },
 
     body: {
         type: String,
-        required: 'Blog body is required',
+        required: true,
         trim: true
     },
 
     authorId: {
         type: ObjectId,
         ref: "Author",
-        required: 'Author Id is required'
+        required: true
     },
     tags: [{ type: String, trim: true }],
 
