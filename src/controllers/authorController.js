@@ -57,18 +57,13 @@ const createAuthor = async (req, res) => {
 const login = async (req, res) => {
 
     try {
-
         // taking EmailId and Password from body and checking both are present
         let credentials = req.body
-        let {email, password, ...rest} = req.body
-        // let authorEmail = req.body.email
-        // let authorPassword = req.body.password
-        if(Object.keys(rest) != 0) return res.status(400).send({ status: false, msg: "please provide EmaliId and Password only"})
-
-
+        let { email, password } = credentials
+        
         if (!email && !password) return res.status(404).send({ status: false, msg: "please enter EmailId and Password" })
-        if (!email) return res.status(404).send({ status: false, msg: "please enter EmailId" })
-        if (!password) return res.status(404).send({ status: false, msg: "please enter Password" })
+        // if (!email) return res.status(404).send({ status: false, msg: "please enter EmailId" })
+        // if (!password) return res.status(404).send({ status: false, msg: "please enter Password" })
 
         // finding that particular user/author inside AuthorModel  
         let Author = await AuthorModel.findOne({ email: email, password: password })

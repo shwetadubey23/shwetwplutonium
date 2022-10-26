@@ -6,11 +6,10 @@ const createBlog = async (req, res) => {
     try {
         // taking data from body
         const newBlog = req.body;
-        let { title, body, authorId, category, isPublished, tags, subcategory, ...rest } = req.body
+        let { title, body, authorId, category, isPublished, tags, subcategory } = newBlog
 
         //checking that there is data inside body
         if (Object.keys(newBlog) == 0) return res.status(400).send({ status: false, msg: "please provide details" })
-        if(Object.keys(rest) != 0) return res.status(400).send({ status: false, msg: "please provide required details only => title, body, authorId, category and isPublished"})
         
         // checking all the required fields are present or not(sending error msg according to that)
         if (!title) return res.status(400).send({ status: false, msg: "Title is required" });
