@@ -1,29 +1,22 @@
 const BlogModel = require("../models/blogModel");
 const AuthorModel = require('../models/authorModel');
+const ObjectId = require('mongoose').Types.ObjectId
 
 //**     /////////////////////////      Createblog      //////////////////////       **//
 const createBlog = async (req, res) => {
     try {
-        // taking data from body
+
         const newBlog = req.body;
         let { title, body, authorId, category, isPublished, tags, subcategory } = newBlog
 
-        //checking that there is data inside body
         if (Object.keys(newBlog) == 0) return res.status(400).send({ status: false, msg: "please provide details" })
-        
-        // checking all the required fields are present or not(sending error msg according to that)
         if (!title) return res.status(400).send({ status: false, msg: "Title is required" });
         if (!body) return res.status(400).send({ status: false, msg: "Body is required" });
         if (!authorId) return res.status(400).send({ status: false, msg: "AuthorId is required" });
         if (!category) return res.status(400).send({ status: false, msg: "Category is required" });
-
-        //finding by authorId
-        //let authorId = newBlog['authorId']
         const validateAuthorId = await AuthorModel.findById(authorId);
-        //check valid authorId
-        if (!validateAuthorId) return res.status(404).send({ status: false, msg: "AuthorId is invalid" });
-
-        // creating new blog
+        if (!validateAuthorId) return res.status(404).send({ status: false, msg: "author deoesn't exist" });
+     
         const data = await BlogModel.create(newBlog);
 
         if (isPublished === true) {
@@ -38,18 +31,15 @@ const createBlog = async (req, res) => {
 }
 
 
-//**     /////////////////////////      getBlogs      //////////////////////       **//
+//////////////////////////////////////////// getBlogs /////////////////////////////////////////////
 const getBlogs = async (req, res) => {
     try {
-        // taking all queries from query param
         let queries = req.query;
-        // passing the queries variable inside find, desired filterisation too for validation
+
         let allBlogs = await BlogModel.find({
             $and: [queries, { isDeleted: false, isPublished: true }]
         });
-        if (allBlogs.length == 0) return res.status(404).send({ status: false, msg: "No blog found" });;
-
-        // sending response
+        if (allBlogs.length == 0) return res.status(404).send({ status: false, msg: "No blog found" });
         res.status(200).send({ status: true, data: allBlogs });
     } catch (err) {
         res.status(500).send({ status: "error", error: err.message });
@@ -57,34 +47,15 @@ const getBlogs = async (req, res) => {
 }
 
 
-//**     /////////////////////////      updateBlog      //////////////////////  /blogs/:blogId      **//
-const updateBlog = async (req, res) => {
+///////////////////////////////////////////// updateBlog ///////////////////////////////////////////
 
+const updateBlog = async (req, res) => {
     try {
 
-        // taking the userId who is requesting to change
-        let requestingAuthor = req.requestingAuthor
+        let blogId = req.params.blogId
 
-        // taking the blog from authorise middleware
-        let blog = req.foundBlog
-        // getting blog from middleware(authorisation) 
-        if (!blog) return res.status(404).send({ status: false, msg: "invalid blogId" });
-
-        let blogId = req.blogId;
-
-        // extracting authorId from blog
-        let authorIdFromBlog = blog.authorId.toString();
-
-        // checking that both author are same
-        if (requestingAuthor != authorIdFromBlog) return res.status(404).send({ status: false, msg: "author has no permission to change other's blog" });
-
-        // taking details from the body
         let details = req.body;
 
-        let check = await BlogModel.findById(blogId)
-        if (check['isDeleted'] == true) return res.status(404).send({ status: false, msg: "requested document has already deleted" });
-
-        // updating that blog with findOneAndUpdate
         const updatedBlog = await BlogModel.findOneAndUpdate(
             { _id: blogId },
             {
@@ -99,27 +70,11 @@ const updateBlog = async (req, res) => {
 }
 
 
-//**     /////////////////////////      deleteBlog      //////////////////////  /blogs/:blogId      **//
+//////////////////////////////////////      deleteById      ///////////////////////////////////
 const deleteBlogById = async (req, res) => {
     try {
-        // taking blogId from middlewares/authorise
-        let blogId = req.blogId;  //req.params.blogId
-        // getting blog from middleware(authorisation) 
-        let isBlogIdPresentDb = req.foundBlog  // all the details of req.params.blogId
+        let blogId = req.params.blogId;
 
-        let requestingAuthorId = req.requestingAuthor
-
-        let authorIdFromReqBlog = isBlogIdPresentDb['authorId']
-
-        // validating blogId
-        if (!isBlogIdPresentDb) return res.status(404).send({ status: false, msg: "Blog is not exist" });
-
-        if ( requestingAuthorId != authorIdFromReqBlog) return res.status(404).send({ status: false, msg: "author has no permission to delete other's blog" });
-
-
-        if (isBlogIdPresentDb.isDeleted === true) return res.status(404).send({ status: false, msg: "you are requesting to delete already deleted blog" });
-
-        // deleting that perticular doc
         let deleteBlog = await BlogModel.updateOne(
             { _id: blogId },
             { isDeleted: true, deletedAt: Date.now() },
@@ -132,28 +87,33 @@ const deleteBlogById = async (req, res) => {
 }
 
 
-//**     /////////////////////////      deleteBlog      //////////////////////  /blogs?queryParams      **//
+////////////////////////////////////////      deleteByQuery     //////////////////////////////////////
 const deleteBlogByQueryParam = async (req, res) => {
     try {
-        // taking queries
+
         let queries = req.query;
-        if (!queries) return res.status(404).send({ status: false, msg: "please add queries" });
+        // if (!queries) return res.status(404).send({ status: false, msg: "please add queries" });
 
-        // validating queries inside BlogModel
-        // filterByQuery returns an array of objects
-        let filterByQuery = await BlogModel.find(queries);
-        if (filterByQuery.length == 0) return res.status(404).send({ status: false, msg: "No blog found to delete" });
+        let filterByQuery = await BlogModel.findOne(queries);
+        if (!filterByQuery) return res.status(404).send({ status: false, msg: "blog doesn't exist" });
 
-        // deleting documents according to the query param inputs
-        // according to those data there will may be a scenario where we have to update many docs
-        // thats'why we are using updateMany
+        if (filterByQuery.isDeleted == true) return res.status(404).send({ status: false, msg: "blog already deleted" });
+
+        // let authorId = JSON.stringify(filterByQuery.authorId)
+        // console.log(typeof(filterByQuery.authorId))
+        let userId = req.validateToken.userId
+        // console.log(userId)
+
+        if (userId !== filterByQuery.authorId.toString()) return res.status(404).send({ status: false, msg: "not authorised" })
+
         let deletedBlogDetails = await BlogModel.updateMany(
-            // using $and to target those docs matching with queries taken and those are not deleted
             { $and: [queries, { isDeleted: false }] },
             { $set: { isDeleted: true, deletedAt: Date.now() } },
             { new: true }
         );
         res.status(200).send({ status: true, msg: "document deleted successfully" });
+
+        // if (!deletedBlogDetails) 
     } catch (err) {
         res.status(500).send({ status: "error", error: err.message });
     }
