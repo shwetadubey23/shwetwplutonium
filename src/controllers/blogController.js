@@ -7,13 +7,17 @@ const createBlog = async (req, res) => {
     try {
 
         const newBlog = req.body;
-        let { title, body, authorId, category, isPublished, tags, subcategory } = newBlog
+        let { title, body, authorId, category, isPublished } = newBlog
 
         if (Object.keys(newBlog) == 0) return res.status(400).send({ status: false, msg: "please provide details" })
+
+        if (!ObjectId.isValid(authorId)) return res.status(400).send({ status: false, msg: "Invalid authorId" })
+
         if (!title) return res.status(400).send({ status: false, msg: "Title is required" });
         if (!body) return res.status(400).send({ status: false, msg: "Body is required" });
         if (!authorId) return res.status(400).send({ status: false, msg: "AuthorId is required" });
         if (!category) return res.status(400).send({ status: false, msg: "Category is required" });
+
         const validateAuthorId = await AuthorModel.findById(authorId);
         if (!validateAuthorId) return res.status(404).send({ status: false, msg: "author deoesn't exist" });
      
